@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Groundwork — Animated Landing Mockup</title>
+  <meta name="description" content="Minimal espresso-machine style homepage animation: hole → hand with portafilter → 'groundwork' pop." />
+
+  <style>
+    /* ============ Basic page layout ============ */
+    :root{
+      --bg: #F7EFE6;        /* cream */
+      --brown-900: #3b1f12; /* darkest */
+      --brown-700: #6b3d2a; /* mid */
+      --brown-500: #a26b52; /* lighter */
+      --hole: #2f180f;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      background:var(--bg);
+      font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* container keeps the SVG centered and responsive */
+    .canvas {
+      width: min(760px, 92vw);
+      max-width: 880px;
+      aspect-ratio: 1 / 1; /* square-ish layout */
+      display: grid;
+      place-items: center;
+    }
+
+    /* Accessible off-screen heading */
+    .sr-only {
+      position: absolute !important;
+      height: 1px; width: 1px;
+      overflow: hidden;
+      clip: rect(1px,1px,1px,1px);
+      white-space: nowrap;
+      border: 0;
+      padding: 0;
+      margin: -1px;
+    }
+
+    /* ============ SVG styles ============ */
+    svg {
+      width: 100%;
+      height: 100%;
+      display:block;
+      overflow: visible;
+    }
+
+    /* We'll animate these groups */
+    #hole {
+      transform-origin: 50% 55%;
+      transform-box: fill-box;
+      opacity:1;
+      /* start invisible via scale in CSS-only animation */
+    }
+
+    #handGroup {
+      transform-origin: 50% 70%;
+      transform-box: fill-box;
+    }
+
+    #textGroup {
+      transform-origin: 50% 50%;
+      transform-box: fill-box;
+    }
+
+    /* ============ CSS-Only Animation ============ */
+    /* The animation plays in sequence using delays and animation-fill-mode: forwards so it stays in the final state */
+    /* Total timeline: hole 0.45s, pause 0.15s, hand 0.7s, pause 0.1s, text 0.6s */
+
+    /* Hole: scale up from 0 */
+    @keyframes holeIn {
+      0%   { transform: scale(0); opacity: 0; }
+      60%  { transform: scale(1.07); opacity: 1; } /* slight overshoot for natural feel */
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Hand: starts lower and invisible, rises and fades in with a tiny overshoot */
+    @keyframes handRise {
+      0%   { transform: translateY(18%) scale(0.98); opacity: 0; }
+      60%  { transform: translateY(-4%) scale(1.02); opacity: 1; }
+      100% { transform: translateY(0%) scale(1); opacity: 1; }
+    }
+
+    /* Text pop with bounce */
+    @keyframes textPop {
+      0%   { transform: scale(0.6); opacity: 0; }
+      60%  { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Apply the CSS animations (default path) */
+    /* If data-use-gsap="true" is set on body, we'll skip CSS animations so GSAP can own it. */
+    body:not([data-use-gsap="true"]) #hole {
+      animation: holeIn 520ms cubic-bezier(.22,.9,.35,1) 150ms both;
+    }
+
+    body:not([data-use-gsap="true"]) #handGroup {
+      opacity: 0;
+      animation: handRise 700ms cubic-bezier(.2,.9,.3,1) 720ms both;
+    }
+
+    body:not([data-use-gsap="true"]) #textGroup {
+      opacity: 0;
+      animation: textPop 620ms cubic-bezier(.2,.9,.3,1) 1450ms both;
+    }
+
+    /* Small UI niceties */
+    /* Make sure the final state is crisp and non-blurry on mobile */
+    svg * { vector-effect: non-scaling-stroke; }
+
+    /* Responsive adjustments: slightly smaller on tiny screens */
+    @media (max-width:420px){
+      .canvas {
+        width: 92vw;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <h1 class="sr-only">Groundwork — animated landing mockup</h1>
+
+  <main class="canvas" aria-label="Animated Groundwork logo showing hole, hand, and text">
+    <!-- Inline SVG (flat style). IDs: hole / handGroup / textGroup -->
+    <svg viewBox="0 0 1000 1000" role="img" aria-hidden="false" focusable="false">
+      <!-- Background "plate" for composition (optional faint ring) -->
+      <defs>
+        <style>
+          .bg-cream { fill: none; } /* no fill here - page background handles it */
+        </style>
+      </defs>
+
+      <!-- -------- 1) HOLE (appears first) ---------- -->
+      <!-- Drawn as a dark ellipse with subtle inner rim -->
+      <g id="hole">
+        <!-- outer rim -->
+        <ellipse cx="500" cy="620" rx="260" ry="60" fill="#382015" />
+        <!-- inner highlight rim to give a subtle flat rim -->
+        <ellipse cx="500" cy="625" rx="230" ry="48" fill="#2b130c" />
+      </g>
+
+      <!-- -------- 2) HAND + PORTAFILTER (rises next) ---------- -->
+      <!-- This is a simplified, flat silhouette built from basic shapes -->
+      <g id="handGroup" transform="translate(0,0)">
+        <!-- sleeve / arm (flat mid brown) -->
+        <path id="sleeve" d="M360 610 q20 -110 140 -110 q120 0 140 110 v70 h-420z"
+          fill="#6b3d2a" />
+
+        <!-- wrist & hand (light fill) -->
+        <path id="hand" d="M470 480 q10 -40 46 -40 q36 0 46 40 l6 62 q-10 56 -54 56 q-46 0 -66 -40 z"
+          fill="#f0dbcc" />
+
+        <!-- simplified portafilter body (metallic feel expressed as flat mid brown outline) -->
+        <g id="portafilter" transform="translate(0,0)">
+          <!-- metal head -->
+          <ellipse cx="730" cy="470" rx="58" ry="26" fill
